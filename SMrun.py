@@ -12,7 +12,7 @@ col_comm = MPI.Comm.Split(world_comm, world_rank%SMpara.N,world_rank)
 col_rank = col_comm.Get_rank()
 
 SMpara.initializeParaMatrix()
-SMpara.setPrefsFromFilePara("preflist.txt")
+SMpara.setPrefsFromFilePara("prefList.txt")
 if world_rank == 0:
     indiv = SMpara.Individual(True)
     indiv.print_pairs()
