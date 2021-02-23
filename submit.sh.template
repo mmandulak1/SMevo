@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+#SBATCH --job-name=PIIevo
+#SBATCH --exclude=hpcl1-1
+
+echo $x
+echo
+
+ub=10
+i=$ub
+mkdir -p tmp
+rm times_out_SMevo.txt.$x
+until [ $i -eq 0 ]; do
+
+python3 prefGen.py $x > tmp/PrefLists.txt.$i.$x
+start=$(date +%s%3N)
+srun -n $x python3 SMrun.py
+retval=$?
+end=$(date +%s%3N)
+rm tmp/PrefLists.txt.$i.$x
+if [ "$retval" -eq "0" ]; then
+echo $start,$end >> times_out_SMevo.txt.$x
+let i="$i - 1"
+else
+echo "failed on $i retry"
+../smDataGenerator/smDataGen $x > tmp/PrefLists.txt.$i.$x
+fi
+done
