@@ -12,17 +12,17 @@ mkdir -p tmp
 rm times_out_SMevo.txt.$x
 until [ $i -eq 0 ]; do
 
-python3 prefGen.py $x > tmp/PrefLists.txt.$i.$x
+python3 prefGen.py $x PrefLists.txt.$i.$x > tmp/PrefLists.txt.$i.$x
 start=$(date +%s%3N)
 srun -n $x python3 SMrun.py
 retval=$?
 end=$(date +%s%3N)
 rm tmp/PrefLists.txt.$i.$x
-if [ "$retval" -eq "0" ]; then
-echo $start,$end >> times_out_SMevo.txt.$x
+if [ "$retval" -gt "-1" ]; then
+echo $start,$end,$retval >> times_out_SMevo.txt.$x
 let i="$i - 1"
 else
 echo "failed on $i retry"
-../smDataGenerator/smDataGen $x > tmp/PrefLists.txt.$i.$x
+python3 prefGen.py $x PrefLists.txt.$i.$x > tmp/PrefLists.txt.$i.$x
 fi
 done
