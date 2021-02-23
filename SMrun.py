@@ -34,7 +34,7 @@ while not done:
         if world_rank == 0:
             print("Stable matching on generation " + str(generations))
             indiv.print_pairs()
-            return generations
+            sys.exit(generations)
         break
     #if generations % 10 == 0 and world_rank == 0:
         #print(str(generations) + "/" + str(SMpara.GENERATIONS))
@@ -42,7 +42,7 @@ while not done:
         if world_rank == 0:
             print("Max generation number reached")
             indiv.print_pairs()
-            return -1
+            sys.exit(-1)
         break
     indiv = SMpara.do_gen_temp_para(indiv,nodeinfo,world_comm,row_comm,col_comm, temper)
     generations += 1
