@@ -1,5 +1,5 @@
 #!/bin/bash
-for j in $(seq 4 $1); do
+for j in $(seq $1 $1); do
 let "x=$j"
 let "i=$x * $x"
 

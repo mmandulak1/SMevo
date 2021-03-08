@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+#SBATCH --job-name=SMevo
+#SBATCH --exclude=hpcl1-1
+module load mpi/openmpi3-x86_64
+
+echo $x
+echo
+
+ub=1000
+i=$ub
+mkdir -p tmp
+until [ $i -eq 0 ]; do
+
+./Rdm $x > tmp/PrefLists.txt.$i.$x
+start=$(date +%s%3N)
+mpirun SMrun tmp/PrefLists.txt.$i.$x $x
+retval=$?
+end=$(date +%s%3N)
+rm tmp/PrefLists.txt.$i.$x
+if [ "$retval" -gt "-1" ]; then
+echo $start,$end,$retval >> times_out_goPII.txt.$x
+let i="$i - 1"
+else
+echo "failed on $i retry"
+./Rdm $x > tmp/PrefLists.txt.$i.$x
+fi
+done

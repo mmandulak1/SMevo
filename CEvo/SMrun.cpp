@@ -71,7 +71,7 @@ class Individual{
                 this->matchingPairValues[i] = matrix[this->matchingPairs[i].left][this->matchingPairs[i].right];
             }
         }
-        Individual(bool init, vector<vector<Pairing>> &matrix, int N){
+        Individual(bool init, vector< vector<Pairing> > &matrix, int N){
             fitness_val = N*N;
             Pairing temp;
             Pairing tempVal;

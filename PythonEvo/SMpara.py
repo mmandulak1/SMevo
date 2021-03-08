@@ -46,18 +46,18 @@ class Individual:
                     value += 1
     def print_pairs(self):
         for i in range(0,N):
-            print("(" + str(self.matchingPairs[i].pair[0]) + "," + str(self.matchingPairs[i].pair[1]), end=") ")
+            print("(" + str(self.matchingPairs[i].pair[0]) + "," + str(self.matchingPairs[i].pair[1]))
         print(str(self.fitness_val))
     def print_pairVals(self):
-        print("PairVals:", end="")
+        print("PairVals:")
         for i in range(0,N):
-            print("(" + str(self.matchingPairValues[i].pair[0]) + "," + str(self.matchingPairValues[i].pair[1]), end=") ")
+            print("(" + str(self.matchingPairValues[i].pair[0]) + "," + str(self.matchingPairValues[i].pair[1]))
         print("")
     def print_pairs_sorted(self):
         for i in range(0,N):
             for j in range(0,N):
                 if self.matchingPairs[j].pair[0] == i:
-                    print("(" + str(self.matchingPairs[j].pair[0]) + "," + str(self.matchingPairs[j].pair[1]), end=") ")
+                    print("(" + str(self.matchingPairs[j].pair[0]) + "," + str(self.matchingPairs[j].pair[1]))
         print(str(self.fitness_val))
     def sort_matching_pairs(self):
         for i in range(0,N):
@@ -85,7 +85,7 @@ def printMatrix():
     print("")
     for i in range(0,N):
         for j in range(0,N):
-            print("(" + str(matrix[i][j].pair[0]) + "," + str(matrix[i][j].pair[1]), end=") ")
+            print("(" + str(matrix[i][j].pair[0]) + "," + str(matrix[i][j].pair[1]))
             #print("(" + str(matrix[i][j]),end=") ")
         print("")
     print("")
@@ -95,9 +95,9 @@ def printMatchingMatrix(Individual):
     for i in range(0,N):
         for j in range(0,N):
             if Individual[i].pair[1] == j:
-                print("1",end=" ")
+                print("1")
             else:
-                print("0",end=" ")
+                print("0")
         print("")
     print("")
 

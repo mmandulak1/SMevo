@@ -1,6 +1,7 @@
 import SMpara
 import os
 from mpi4py import MPI
+import sys
 import numpy as np
 
 world_comm = MPI.COMM_WORLD

@@ -2,27 +2,30 @@
 #
 #SBATCH --job-name=PIIevo
 #SBATCH --exclude=hpcl1-1
-
+module load mpi/mpich-3.2-x86_64
 echo $x
 echo
 
-ub=10
+
+let PE=$x*$x
+ub=100
 i=$ub
 mkdir -p tmp
 rm times_out_SMevo.txt.$x
 until [ $i -eq 0 ]; do
-
-python3 prefGen.py $x PrefLists.txt.$i.$x > tmp/PrefLists.txt.$i.$x
+rm tmp/prefList.txt.$i.$x
+python3 prefGen.py $x tmp/prefList.txt.$i.$x
 start=$(date +%s%3N)
-srun -n $x python3 SMrun.py
+mpirun -n $PE python3 SMrun.py $x tmp/prefList.txt.$i.$x
 retval=$?
 end=$(date +%s%3N)
-rm tmp/PrefLists.txt.$i.$x
+rm tmp/prefList.txt.$i.$x
 if [ "$retval" -gt "-1" ]; then
 echo $start,$end,$retval >> times_out_SMevo.txt.$x
 let i="$i - 1"
 else
 echo "failed on $i retry"
-python3 prefGen.py $x PrefLists.txt.$i.$x > tmp/PrefLists.txt.$i.$x
+rm tmp/prefList.txt.$i.$x
+python3 prefGen.py $x prefList.txt.$i.$x
 fi
 done

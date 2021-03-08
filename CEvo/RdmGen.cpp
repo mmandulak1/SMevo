@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <time.h>
+#include <stdlib.h>
 using namespace std;
 
 int main(int argc, char* argv[])
