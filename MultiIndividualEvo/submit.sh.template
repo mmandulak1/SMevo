@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+#SBATCH --job-name=SMevo
+#SBATCH --exclude=hpcl1-1
+module load mpi/openmpi3-x86_64
+
+echo $x
+echo
+
+ub=1000
+i=$ub
+mkdir -p tmp
+until [ $i -eq 0 ]; do
+
+./Rdm $x > tmp/PrefLists.txt.$i.$x.$k_PE
+start=$(date +%s%3N)
+mpirun SMrun tmp/PrefLists.txt.$i.$x.$k_PE $x
+end=$(date +%s%3N)
+rm tmp/PrefLists.txt.$i.$x.$k_PE
+echo $start,$end >> times_out_goPII.txt.$x.$k
+let i="$i - 1"
+done
