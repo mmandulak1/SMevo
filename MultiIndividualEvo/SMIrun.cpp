@@ -224,10 +224,9 @@ void ReadPrefsFromFile(vector<vector<Pairing>> &matrix, ifstream &inpfile, int N
         colI = 0;
     }
 }
-Individual* mutation(Individual *indiv, int N){
-    Individual* tempIndiv; 
+Individual mutation(Individual indiv, int N){
+    Individual tempIndiv(indiv, N);
     int LoR, coord1, coord2, temp;
-    tempIndiv = new Individual(*indiv, N);
     //cout << *indiv;
     //cout << *tempIndiv;
     LoR = rand()%2;
@@ -240,14 +239,14 @@ Individual* mutation(Individual *indiv, int N){
             break;
     }
     if(LoR==0){
-        temp = tempIndiv->matchingPairs[coord1].left;
-        tempIndiv->matchingPairs[coord1].left = tempIndiv->matchingPairs[coord2].left;
-        tempIndiv->matchingPairs[coord2].left = temp;
+        temp = tempIndiv.matchingPairs[coord1].left;
+        tempIndiv.matchingPairs[coord1].left = tempIndiv.matchingPairs[coord2].left;
+        tempIndiv.matchingPairs[coord2].left = temp;
     }
     else{
-        temp = tempIndiv->matchingPairs[coord1].right;
-        tempIndiv->matchingPairs[coord1].right = tempIndiv->matchingPairs[coord2].right;
-        tempIndiv->matchingPairs[coord2].right = temp;
+        temp = tempIndiv.matchingPairs[coord1].right;
+        tempIndiv.matchingPairs[coord1].right = tempIndiv.matchingPairs[coord2].right;
+        tempIndiv.matchingPairs[coord2].right = temp;
     }
     //cout << *indiv;
     //cout << *tempIndiv;
@@ -263,14 +262,14 @@ void resetMatrixCheck(vector<vector<Pairing>> &matrix, int N){
             matrix[i][j].checked=false;
 }
 
-int calcFitness(Individual *indiv,vector<vector<Pairing>> &matrix, int N){
+int calcFitness(Individual indiv,vector<vector<Pairing>> &matrix, int N){
     resetMatrixCheck(matrix,N);
     int fitness=(N*N)-N;
     for(int i=0;i<N;i++)
     {
         for(int j=0;j<N;j++)
         {
-            if(indiv->matchingPairValues[i].left < matrix[i][j].left){
+            if(indiv.matchingPairValues[i].left < matrix[i][j].left){
                 fitness--;
                 matrix[i][j].checked=true;
             }
@@ -281,8 +280,8 @@ int calcFitness(Individual *indiv,vector<vector<Pairing>> &matrix, int N){
         for(int j=0;j<N;j++)
         {
             for(int k=0;k<N;k++){
-                if(indiv->matchingPairs[k].right==i)
-                    if(indiv->matchingPairValues[k].right<matrix[j][i].right && !matrix[j][i].checked)
+                if(indiv.matchingPairs[k].right==i)
+                    if(indiv.matchingPairValues[k].right<matrix[j][i].right && !matrix[j][i].checked)
                     {
                         fitness--;
                     }
@@ -292,28 +291,25 @@ int calcFitness(Individual *indiv,vector<vector<Pairing>> &matrix, int N){
     return fitness;
     
 } 
-Individual* doGenTemper(Individual *indiv,vector<vector<Pairing>> &matrix,float temper, int N)
+Individual doGenTemper(Individual indiv,vector<vector<Pairing>> &matrix,float temper, int N)
 {
-    Individual* tempIndiv;
     int newfit;
     float probability;
     while(true){
-        if((*indiv).fitness_val==0)
+        if(indiv.fitness_val==0)
             return indiv;
-        tempIndiv = mutation(indiv, N);
-        (*tempIndiv).sortMatchingPairs(N);
-        (*tempIndiv).setMatchingPairValues(matrix, N);
+        Individual tempIndiv = mutation(indiv, N);
+        tempIndiv.sortMatchingPairs(N);
+        tempIndiv.setMatchingPairValues(matrix, N);
         newfit = calcFitness(indiv, matrix, N);
-        tempIndiv->fitness_val = newfit;
-        if(newfit <= indiv->fitness_val){
-            delete indiv;
+        tempIndiv.fitness_val = newfit;
+        if(newfit <= indiv.fitness_val){
             return tempIndiv;
         }
         else
         {
-            probability=pow(2.7, -1*((newfit-indiv->fitness_val)/temper));
+            probability=pow(2.7, -1*((newfit-indiv.fitness_val)/temper));
             if(probability > 0.5){
-                delete indiv;
                 return tempIndiv;
             }
             temper = raiseTemp(temper);
@@ -329,7 +325,8 @@ int main(int argc, char* argv[]){
     }
     int N = stoi(argv[2]);
     MPI_Init(NULL,NULL);
-    int world_size, world_rank;
+    int world_size = 0; 
+    int world_rank = 0;
     MPI_Comm row_comm, col_comm;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -338,7 +335,7 @@ int main(int argc, char* argv[]){
     //cout << "hello from proc " << world_rank << "/" << world_size << endl;
     srand(time(NULL)+world_rank);
     
-    Individual* indiv;
+    //Individual* indiv;
     ifstream inpfile;
     inpfile.open(argv[1]);
     vector<vector<Pairing>> matrix;
@@ -346,8 +343,8 @@ int main(int argc, char* argv[]){
     ReadPrefsFromFile(matrix,inpfile,N);
     //if(world_rank==0)
     //   PrintMatrix(matrix,N);
-    indiv = new Individual(true,matrix, N);
-    indiv->fitness_val = calcFitness(indiv, matrix, N);
+    Individual indiv(true,matrix, N);
+    indiv.fitness_val = calcFitness(indiv, matrix, N);
     //ParaInfo nodeInfo(col_rank, row_rank, matrix);
     //setMatchingPairsPara(indiv, nodeInfo, row_comm, col_comm, row_rank, col_rank);
     
@@ -363,42 +360,44 @@ int main(int argc, char* argv[]){
     int foundSM = 0;
     while(!done){
         //cout << *indiv << endl;
-        if(indiv->fitness_val==0){
+        if(indiv.fitness_val==0){
             foundSM += 1;
         }
         MPI_Allreduce(&foundSM, &foundSM, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         if(foundSM !=0)
         {
-            if(indiv->fitness_val==0){
+            if(indiv.fitness_val==0){
                 cout << generations;
                 cout << endl;
             }
             //for(int i=0;i<N;i++)
             //    cout << "(" << indiv->matchingPairs[i].left << "," << indiv->matchingPairs[i].right << ") ";
             MPI_Finalize();
-            delete indiv;
             vector<vector<Pairing>>().swap(matrix);
             inpfile.close();
             return 0;
         }
+        /*
         if(generations == GENERATION_MAX-1)
         {
-            cout << "-1";
+            if(world_rank == 0){
+                cout << "-1";
+                cout << endl;
+            }
             //for(int i=0;i<N;i++)
             //    cout << indiv->matchingPairs[i].left << " " << indiv->matchingPairs[i].right << " ";
-            cout << endl;
             MPI_Finalize();
-            delete indiv;
             vector<vector<Pairing>>().swap(matrix);
             inpfile.close();
             return 0;
-        }
+        }*/
+        //if(world_rank==0)
+        //    cout <<"Generation "<< generations << ":" <<  indiv;
         indiv = doGenTemper(indiv, matrix, temper, N);
         generations++;
     }
     
     inpfile.close();
-    delete indiv;
     vector<vector<Pairing>>().swap(matrix);
     MPI_Finalize();
     return 0;
