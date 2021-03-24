@@ -9,8 +9,8 @@
 #include <string>
 using namespace std;
 
-int GENERATION_MAX = 10000;
-
+int GENERATION_MAX = 100000;
+bool PRINT_GENERATIONS = false;
 
 
 class Pairing{
@@ -366,34 +366,42 @@ int main(int argc, char* argv[]){
         MPI_Allreduce(&foundSM, &foundSM, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         if(foundSM !=0)
         {
-            if(indiv.fitness_val==0){
-                cout << generations;
-                cout << endl;
-            }
+	    if(PRINT_GENERATIONS){
+	    	MPI_Allreduce(&generations, &generations, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
+            	if(world_rank==0){
+                	cout << generations;
+                	cout << endl;
+            	}
+	    }
             //for(int i=0;i<N;i++)
             //    cout << "(" << indiv->matchingPairs[i].left << "," << indiv->matchingPairs[i].right << ") ";
-            MPI_Finalize();
-            vector<vector<Pairing>>().swap(matrix);
-            inpfile.close();
-            return 0;
+            	MPI_Finalize();
+            	vector<vector<Pairing>>().swap(matrix);
+            	inpfile.close();
+            	return 0;
         }
-        /*
+        
         if(generations == GENERATION_MAX-1)
         {
-            if(world_rank == 0){
-                cout << "-1";
-                cout << endl;
-            }
+	    if(PRINT_GENERATIONS){
+            	if(world_rank == 0){
+                	cout << "-1";
+                	cout << endl;
+            	}
+	    }
             //for(int i=0;i<N;i++)
             //    cout << indiv->matchingPairs[i].left << " " << indiv->matchingPairs[i].right << " ";
             MPI_Finalize();
             vector<vector<Pairing>>().swap(matrix);
             inpfile.close();
             return 0;
-        }*/
+        }
         //if(world_rank==0)
         //    cout <<"Generation "<< generations << ":" <<  indiv;
         indiv = doGenTemper(indiv, matrix, temper, N);
+	for(int i=0;i<N;i++)
+		cout << indiv.matchingPairs[i].left << "," << indiv.matchingPairs[i].right << " ";
+	cout << endl;
         generations++;
     }
     

@@ -2,21 +2,22 @@
 #
 #SBATCH --job-name=SMevo
 #SBATCH --exclude=hpcl1-1
-module load mpi/openmpi3-x86_64
+module load mpi/openmpi-x86_64
 
 echo $x
+echo $k
 echo
 
-ub=1000
+ub=1
 i=$ub
 mkdir -p tmp
 until [ $i -eq 0 ]; do
 
-./Rdm $x > tmp/PrefLists.txt.$i.$x.$k_PE
+./Rdm $x > tmp/PrefLists.txt.$i.$x.$k
 start=$(date +%s%3N)
-mpirun SMrun tmp/PrefLists.txt.$i.$x.$k_PE $x
+mpirun SMrun tmp/PrefLists.txt.$i.$x.$k $x
 end=$(date +%s%3N)
-rm tmp/PrefLists.txt.$i.$x.$k_PE
+#rm tmp/PrefLists.txt.$i.$x.$k
 echo $start,$end >> times_out_goPII.txt.$x.$k
 let i="$i - 1"
 done
