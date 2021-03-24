@@ -6,7 +6,7 @@ import sys
 N = int(sys.argv[1])
 matrix = np.zeros((N,N))
 print(sys.argv[1])
-data = open("slurm-3771.out", "r")
+data = open("slurm-3772.out", "r")
 i=0
 entry = ""
 while True:
